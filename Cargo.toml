@@ -1,0 +1,27 @@
+[package]
+name = "hash_benchmarks"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "hash_benchmarks"
+path = "src/lib.rs"
+
+[dependencies]
+adler = "1"
+crc32fast = "1"
+crc64fast = "0.1"
+fasthash = { version = "0.4", features = ["city", "metro", "spooky", "farm", "murmur", "xx"] }
+fnv = "1.0"
+highway = "0.8"
+md5 = "0.7"
+murmur3 = "0.5"
+siphasher = "0.3"
+twox-hash = "1.6"
+
+[dev-dependencies]
+criterion = "0.5"
+
+[[bench]]
+name = "hash_algorithms"
+harness = false
