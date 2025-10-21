@@ -9,12 +9,14 @@ path = "src/lib.rs"
 
 [dependencies]
 adler = "1"
+cityhasher = "0.1"
 crc32fast = "1"
 crc64fast = "0.1"
-fasthash = { version = "0.4", features = ["city", "metro", "spooky", "farm", "murmur", "xx"] }
+farmhash = "1.1"
 fnv = "1.0"
 highway = "0.8"
 md5 = "0.7"
+metrohash = "1.0"
 murmur3 = "0.5"
 siphasher = "0.3"
 twox-hash = "1.6"

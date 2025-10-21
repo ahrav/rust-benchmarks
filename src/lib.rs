@@ -8,10 +8,10 @@ use std::hash::{Hash, Hasher};
 
 use adler::adler32_slice;
 use crc32fast::hash as crc32_hash;
-use crc64fast::hash as crc64_hash;
-use fasthash::{city, farm, metro, spooky};
+use crc64fast::Digest as Crc64Digest;
 use fnv::FnvHasher;
 use highway::{HighwayHash, HighwayHasher, Key};
+use metrohash::MetroHash64;
 use murmur3::murmur3_32;
 use siphasher::sip::SipHasher13;
 use twox_hash::XxHash64;
@@ -38,7 +38,9 @@ pub fn crc32(data: &[u8]) -> u32 {
 /// Compute the CRC64 checksum for the provided data using the ECMA polynomial.
 #[must_use]
 pub fn crc64(data: &[u8]) -> u64 {
-    crc64_hash(data)
+    let mut digest = Crc64Digest::new();
+    digest.write(data);
+    digest.sum64()
 }
 
 /// Compute the 64-bit FNV-1a hash for the provided data.
@@ -74,13 +76,13 @@ pub fn siphash13<T: Hash>(value: &T) -> u64 {
 /// Compute the CityHash64 digest for the provided data.
 #[must_use]
 pub fn cityhash64(data: &[u8]) -> u64 {
-    city::hash64(data)
+    cityhasher::hash(data)
 }
 
 /// Compute the FarmHash64 fingerprint for the provided data.
 #[must_use]
 pub fn farmhash64(data: &[u8]) -> u64 {
-    farm::hash64(data)
+    farmhash::hash64(data)
 }
 
 /// Compute the HighwayHash64 fingerprint for the provided data.
@@ -89,19 +91,15 @@ pub fn highway64(data: &[u8]) -> u64 {
     let key = Key([0, 1, 2, 3]);
     let mut hasher = HighwayHasher::new(key);
     hasher.append(data);
-    hasher.finish64()
+    hasher.finalize64()
 }
 
 /// Compute the MetroHash64 digest for the provided data using the supplied seed.
 #[must_use]
 pub fn metrohash64(data: &[u8], seed: u64) -> u64 {
-    metro::hash64_with_seed(data, seed)
-}
-
-/// Compute the SpookyHash64 digest for the provided data using two seeds.
-#[must_use]
-pub fn spookyhash64(data: &[u8], seed0: u64, seed1: u64) -> u64 {
-    spooky::hash64_with_seeds(data, seed0, seed1)
+    let mut hasher = MetroHash64::with_seed(seed);
+    hasher.write(data);
+    hasher.finish()
 }
 
 #[cfg(test)]
@@ -200,12 +198,5 @@ mod tests {
         let h1 = metrohash64(FOX, 0);
         assert_eq!(h1, metrohash64(FOX, 0));
         assert_ne!(h1, metrohash64(b"different", 0));
-    }
-
-    #[test]
-    fn spookyhash_consistency() {
-        let h1 = spookyhash64(FOX, 0, 0);
-        assert_eq!(h1, spookyhash64(FOX, 0, 0));
-        assert_ne!(h1, spookyhash64(b"different", 0, 0));
     }
 }

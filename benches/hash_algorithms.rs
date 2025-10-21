@@ -1,7 +1,7 @@
 use criterion::{BenchmarkId, Criterion, black_box, criterion_group, criterion_main};
 use hash_benchmarks::{
     adler32, cityhash64, crc32, crc64, farmhash64, fnv1a_64, highway64, md5_digest, metrohash64,
-    murmur3_32_hash, siphash13, spookyhash64, xxhash64,
+    murmur3_32_hash, siphash13, xxhash64,
 };
 
 const DATA_SIZES: &[usize] = &[32, 256, 1024, 4096, 65_536];
@@ -61,14 +61,6 @@ fn hash_benchmarks(c: &mut Criterion) {
             &payload,
             |b, data| {
                 b.iter(|| black_box(metrohash64(data, 0)));
-            },
-        );
-
-        group.bench_with_input(
-            BenchmarkId::new("spookyhash64", size),
-            &payload,
-            |b, data| {
-                b.iter(|| black_box(spookyhash64(data, 0, 0)));
             },
         );
     }
